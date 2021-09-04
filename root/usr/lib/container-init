@@ -40,14 +40,14 @@ fi
 
 # deploy default configs
 CONFDIRS='libvirt sasl2'
-if [ "$SSHD" != "1" ]; then
+if [ "$SSHD" = "1" ]; then
   CONFDIRS="$CONFDIRS ssh"
 fi
-if [ "$SMBD" != "1" ]; then
+if [ "$SMBD" = "1" ]; then
   CONFDIRS="$CONFDIRS samba"
 fi
 for d in $CONFDIRS; do
-  rsync --ignore-existing --recursive /etc/${d}/ /config/${d}
+  rsync --ignore-existing --recursive /etc/${d}.sample/ /config/${d}
 done
 
 # workaround for libcap-ng failing due to missing CAP_SETPCAP, it doesn't work
