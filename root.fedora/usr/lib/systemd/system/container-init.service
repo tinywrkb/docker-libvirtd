@@ -1,0 +1,12 @@
+[Unit]
+Description=Container init
+DefaultDependencies=no
+Before=libvirt.socket libvirt-ro.socket sockets.target libvirt.service sshd.service sshd-keygen.target
+
+[Service]
+Type=oneshot
+PassEnvironment=TZ SOCK_GID CREATE_UID SSHD SSHD_PORT SMBD
+ExecStart=/usr/lib/container-init
+
+[Install]
+WantedBy=sysinit.target.wants

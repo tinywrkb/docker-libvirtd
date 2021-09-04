@@ -1,0 +1,85 @@
+#!/bin/sh
+
+# TODO: error messages
+# TODO: conditional exec
+
+is_systemd() {
+  if [ -f /usr/lib/systemd/systemd ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# before: libvirtd.service libvirtd.socket sshd.service
+
+# /run/libvirt cleanup
+#  fixes ownership issue when libvirt-sock{,-rw} already exist
+rm -f /run/libvirt/libvirt-sock*
+
+# set libvirt socket gid
+# fallback to root's gid so the default libvirtd.conf won't break with systemd's socket settings are being applied
+groupadd --non-unique -g $SOCK_GID libvirt_access
+
+# create uid(s)
+# TODO: support multiple uids
+if [ "${CREATE_UID}" ]; then
+  useradd -u ${CREATE_UID} -M abc
+fi
+
+# chown /config
+if is_systemd; then
+  chown --recursive root:root /config/{libvirt,samba,sasl2}
+  chown root:root /config /config/ssh
+  chown --recursive root:root /config/ssh/sshd_config.d
+  chown root:ssh_keys /config/ssh/*_key
+  chown root:root /config/ssh/*[^_][^k][^e][^y]
+else
+  chown --recursive root:root /config
+fi
+
+# deploy default configs
+CONFDIRS='libvirt sasl2'
+if [ "$SSHD" != "1" ]; then
+  CONFDIRS="$CONFDIRS ssh"
+fi
+if [ "$SMBD" != "1" ]; then
+  CONFDIRS="$CONFDIRS samba"
+fi
+for d in $CONFDIRS; do
+  rsync --ignore-existing --recursive /etc/${d}/ /config/${d}
+done
+
+# workaround for libcap-ng failing due to missing CAP_SETPCAP, it doesn't work
+# TODO: this should be already solved upstream, test again if still needed
+#setcap cap_setpcap+eip /usr/lib64/libcap-ng.so.0.0.0
+
+# TODO: re-evaluate these, maybe the libvirtd can create them
+(
+ cd /var/lib/libvirt
+ install -dm0711 boot filesystems images isos swtpm
+ install -dm0755 dnsmasq
+ install -dm0700 libxl lxc network
+ install -dm0751 qemu
+
+ cd qemu
+ install -dm0755 channel checkpoint dump nvram ram save snapshot
+)
+
+if is_systemd; then
+  # update systemd environment
+  export \
+    TZ=${TZ:-UTC} \
+    SSHD=${SSHD:-0} \
+    SSHD_PORT=${SSHD_PORT:-22} \
+    SMBD=${SMBD:-0}
+  systemctl import-environment TZ SSHD SSHD_PORT SMBD
+else
+  # disable optional s6-supervise services
+  if [ "$SSHD" != "1" ]; then
+    rm -r /etc/services.d/sshd
+  fi
+  if [ "$SMBD" != "1" ]; then
+    rm -r /etc/services.d/smbd
+  fi
+fi

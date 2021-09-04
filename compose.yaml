@@ -1,0 +1,52 @@
+---
+version: "3.1"
+services:
+  libvirtd:
+    image: tinywrkb/libvirtd:latest-${DIST}
+    container_name: libvirtd
+    network_mode: host
+    # TODO: systemd: don't break host in priviliged mode
+    #privileged: true
+    cap_add:
+      # TODO: drop capabilities
+      - ALL
+      #- NET_ADMIN
+      #- SYS_ADMIN
+    devices:
+      # TODO: figure out what other devices are needed
+      - /dev/dri:/dev/dri
+      - /dev/mem:/dev/mem
+      - /dev/kvm:/dev/kvm
+      - /dev/net/tun:/dev/net/tun
+      - /dev/vhost-net:/dev/vhost-net
+      - /dev/vhost-vsock:/dev/vhost-vsock
+      # TODO: test vfio, might need to be bind mounted and also the /sys path(s)
+      #- /dev/vfio:/dev/vfio
+    environment:
+      - TZ=UTC
+      - SOCK_GID=1000
+      - CREATE_UID=1000
+      - SSHD=1
+      - SSHD_PORT=2224
+      #- SMBD=1
+    volumes:
+      - ./config:/config
+      - /var/lib/libvirt:/data
+    # access unix socket locally
+      - /run/libvirt:/run/libvirt
+    # mask usb devices to avoid libvirt udev related errors
+      - /sys/bus/usb
+    # access host's usb devices, need to unmask usb devices, might also need /dev/bus/usb
+      #- /run/udev:/run/udev
+    # huge pages
+      # needed at least in alpine (udev not running?)
+      - /dev/hugepages:/dev/hugepages
+      - /sys/kernel/mm/hugepages:/sys/kernel/mm/hugepages
+    #   private network namespace: access to the host's bridge virtual device
+      # TODO figure out if this actually can work
+      #- /sys/class/net:/sys/class/net
+      #- /sys/devices/virtual/net:/sys/devices/virtual/net
+# private network namespace: port forwarding
+   #ports:
+   #  - 2223:22
+    restart: unless-stopped

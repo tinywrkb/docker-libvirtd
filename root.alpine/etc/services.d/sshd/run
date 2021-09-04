@@ -1,0 +1,4 @@
+#!/usr/bin/with-contenv sh
+
+# TODO: maybe add a wrapper for with-contenv/s6-envdir (needed for keys gen) and switch this back execlineb
+exec /usr/sbin/sshd -D -p $SSHD_PORT

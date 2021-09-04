@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# workaround for missing /dev/console
+# source: https://github.com/systemd/systemd/pull/4262#issuecomment-353062592
+
+[ -e /dev/console ] ||
+  socat -u pty,link=/dev/console stdout &
+
+exec /usr/lib/systemd/systemd "$@"

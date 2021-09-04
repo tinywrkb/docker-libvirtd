@@ -1,0 +1,11 @@
+[Unit]
+Description=Container stop
+DefaultDependencies=no
+Before=libvirtd.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'rm -rf /run/libvirt/*'
+
+[Install]
+WantedBy=shutdown.target
