@@ -44,6 +44,9 @@ RUN \
     ln -s /config/${f} /etc/${f}; \
     done && \
   rm -r /var/lib/libvirt && ln -s /data /var/lib/libvirt && \
+  rm -rf /var/log/libvirt && ln -s /log/libvirt /var/log/libvirt && \
+  rm -rf /var/log/samba && ln -s /log/samba /var/log/samba && \
+  rm -rf /var/log/swtpm && ln -s /log/swtpm /var/log/swtpm && \
   sed -i \
     -e 's/#\(auth_unix_rw = \)"polkit"/\1"none"/' \
     -e 's/#\(unix_sock_group =\).*/\1"libvirt_access"/' \
@@ -62,6 +65,7 @@ COPY root.${DIST}/ /
 # volumes
 VOLUME /config
 VOLUME /data
+VOLUME /log
 
 FROM base AS extra-alpine
 ENTRYPOINT ["/init"]

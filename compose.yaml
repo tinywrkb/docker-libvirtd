@@ -32,6 +32,7 @@ services:
     volumes:
       - ./config:/config
       - /var/lib/libvirt:/data
+      - ./log:/log
     # access unix socket locally
       - /run/libvirt:/run/libvirt
     # mask usb devices to avoid libvirt udev related errors

@@ -56,14 +56,22 @@ done
 
 # TODO: re-evaluate these, maybe the libvirtd can create them
 (
- cd /var/lib/libvirt
- install -dm0711 boot filesystems images isos swtpm
- install -dm0755 dnsmasq
- install -dm0700 libxl lxc network
- install -dm0751 qemu
+  cd /var/lib/libvirt
+  install -dm0711 boot filesystems images isos swtpm virtiofs
+  install -dm0755 dnsmasq
+  install -dm0700 libxl lxc network
+  install -dm0751 qemu
 
- cd qemu
- install -dm0755 channel checkpoint dump nvram ram save snapshot
+  cd qemu
+  install -dm0755 channel checkpoint dump nvram ram save snapshot
+)
+
+(
+  cd /log
+  install -dm0755 \
+    libvirt libvirt/qemu \
+    samba \
+    swtpm swtpm/libvirt swtpm/libvirt/qemu
 )
 
 if is_systemd; then
