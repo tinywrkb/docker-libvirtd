@@ -1,6 +1,7 @@
 # docker-libvirtd
 
 ## todo
+* ssh-keygen on alpine
 * systemd: change entrypoint to /init without breaking the container
 * move systemd masking to dockerfile?
 * evaluate if sock cleanup is still needed now that the systemd service dependency cycle is fixed, and add it to s6
