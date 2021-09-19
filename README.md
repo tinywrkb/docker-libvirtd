@@ -1,6 +1,11 @@
 # docker-libvirtd
 
 ## todo
+* more stateful data to keep?
+  * /var/cache/libvirt/qemu/capabilities
+  * samba: /var/cache/samba
+  * samba: /var/lib/samba
+  * samba: /var/spool/samba
 * ssh-keygen on alpine
 * systemd: change entrypoint to /init without breaking the container
 * move systemd masking to dockerfile?
