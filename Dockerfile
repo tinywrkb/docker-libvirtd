@@ -18,7 +18,7 @@ ARG DIST
 RUN \
   if [ "$DIST" = 'alpine' ]; then \
     apk add --no-cache \
-      iproute2 libvirt-qemu ovmf qemu-modules qemu-system-x86_64 \
+      iproute2 libvirt-qemu ovmf qemu-img qemu-modules qemu-system-x86_64 \
       virt-install mesa-dri-intel \
       dbus samba openssh \
       less rsync shadow; \
